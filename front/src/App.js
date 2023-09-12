@@ -40,14 +40,30 @@ function App() {
   const selectModel = (modelId) => {
     let find = models.find((element) => element.id === modelId)
     if(find !== undefined){
+      setIdModel(modelId)
       setHtmlInput(find.html)
-      setIdModel(find.modelId)
+      convertHtmlToPdf(find.html)
     }
   }
 
-  const convertHtmlToPdf = async () => {
+  const deleteModel = (modelId) => {
+    const savedModels = JSON.parse(localStorage.getItem('models')) || []
+    const copySavedModels = [...savedModels]
+    const findModelIndex = savedModels.findIndex((element) => element.id === modelId)
+    if(findModelIndex >= 0){
+      copySavedModels.splice(findModelIndex, 1)
+    }
+    localStorage.setItem('models', JSON.stringify(copySavedModels));
+    setModels(getSavedModels())
+    if(modelId === idModel){
+      setHtmlInput('')
+      setPdfData(null)
+    }
+  }
+
+  const convertHtmlToPdf = async (html = null) => {
     try {
-      const response = await axios.post(`${BASE_URL}/html-to-pdf`, { html: htmlInput }, { responseType: 'arraybuffer' });
+      const response = await axios.post(`${BASE_URL}/html-to-pdf`, { html: html || htmlInput }, { responseType: 'arraybuffer' });
       const blob = new Blob([response.data], { type: 'application/pdf' });
       const url = window.URL.createObjectURL(blob);
       setPdfData(url);
@@ -73,7 +89,7 @@ function App() {
                   />
                 </ListItemButton>
                 <ListItemSecondaryAction>
-                  <IconButton edge="end" aria-label="delete">
+                  <IconButton edge="end" aria-label="delete" onClick={() => deleteModel(element.id)}>
                     <DeleteIcon />
                   </IconButton>
                 </ListItemSecondaryAction>
