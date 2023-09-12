@@ -42,7 +42,6 @@ function App() {
     if(find !== undefined){
       setIdModel(modelId)
       setHtmlInput(find.html)
-      convertHtmlToPdf(find.html)
     }
   }
 
@@ -61,9 +60,9 @@ function App() {
     }
   }
 
-  const convertHtmlToPdf = async (html = null) => {
+  const convertHtmlToPdf = async () => {
     try {
-      const response = await axios.post(`${BASE_URL}/html-to-pdf`, { html: html || htmlInput }, { responseType: 'arraybuffer' });
+      const response = await axios.post(`${BASE_URL}/html-to-pdf`, { html: htmlInput }, { responseType: 'arraybuffer' });
       const blob = new Blob([response.data], { type: 'application/pdf' });
       const url = window.URL.createObjectURL(blob);
       setPdfData(url);
@@ -79,7 +78,7 @@ function App() {
         {models.length > 0 ? (
           <List>
             {models.map((element) => (
-              <ListItem>
+              <ListItem key={element.id}>
                 <ListItemButton
                   selected={idModel === element.id}
                   onClick={() => selectModel(element.id)}
